@@ -1,4 +1,4 @@
-from .frame_r_view import CHECK_BTN_ENTRY_DIC, DATABASES, BTN_ENTRY_DICT
+from .frame_a_view import CHECK_BTN_ENTRY_DIC, DATABASES, BTN_ENTRY_DICT
 from pymysql import connect
 
 
@@ -21,7 +21,7 @@ def init_btn_entry_val_from_sql():
     with conn as cur:
         cur.execute(
             "select equipment_port, equipment_status from i_equipment_io "
-            "where equipment_id like 'r%' or equipment_id like 'm%'"
+            "where equipment_id like 'a%' or equipment_id like 'm%'"
         )
         result = cur.fetchall()
     for item in result:

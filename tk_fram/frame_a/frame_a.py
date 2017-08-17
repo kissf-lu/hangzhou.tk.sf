@@ -4,7 +4,7 @@ from tkinter import Tk, Label, Entry, Button, Text, Canvas, Y, BOTH, \
     YES, Frame, Scrollbar, StringVar, Menu
 from tkinter.ttk import Combobox
 from .frame import App, CheckBtnEntryList
-from .frame_r_view import *
+from .frame_a_view import *
 # import logging as lg
 from .db_api import init_btn_entry_val_from_sql
 from .frame_api import run_sim, save_data, update_data, q_exit, menu_file
@@ -36,7 +36,7 @@ def init_menu(root: Tk):
     return base_menu
 
 
-def init_r_frame(root: Tk):
+def init_a_frame(root: Tk):
     """"""
 
     config_view = CheckBtnEntryView()
@@ -329,7 +329,7 @@ def init_r_frame(root: Tk):
     )
     lbl_btn.grid(row=0, column=12)
     # ===================     卸货区数据      =====================
-    for w_id in ConfigFrame.WIG_ID_R:
+    for w_id in ConfigFrame.WIG_ID_A:
         CHECK_BTN_ENTRY_DIC[w_id] = CheckBtnEntryList(
             w_id,
             frame_up,

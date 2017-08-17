@@ -10,7 +10,7 @@ from tkinter.filedialog import askopenfilename
 from .db_api import Mysql, insert_package, update_on_off, save_to_past_run, \
     read_result, update_person
 # from simpy_lib import main
-from .frame_r_view import Flag
+from .frame_a_view import Flag
 
 
 def save_data(package_num, schedul_plan, root, txt_receipt):

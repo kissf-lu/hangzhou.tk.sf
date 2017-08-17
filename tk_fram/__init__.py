@@ -1,3 +1,3 @@
 #
 
-from tk_fram.fram_r import create_r_frame
+from tk_fram.frame_a import create_a_frame

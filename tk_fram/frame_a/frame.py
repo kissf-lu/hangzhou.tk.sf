@@ -4,7 +4,7 @@ from tkinter import Frame
 from tkinter.ttk import Combobox
 from tkinter import Checkbutton, Entry, Menu
 from tkinter import IntVar, StringVar, DISABLED, NORMAL
-from .frame_r_view import ConfigFrame, BTN_ENTRY_DICT, \
+from .frame_a_view import ConfigFrame, BTN_ENTRY_DICT, \
     ENTRY_STATUS_DIC, CHECK_BTN_ENTRY_DIC, M_R_DICT
 
 
@@ -233,7 +233,7 @@ class CheckBtnEntryList(object):
         )
 
     def init_on_off_status(self):
-        if 'r' in self.w_id:
+        if 'a' in self.w_id:
             self.var.set(BTN_ENTRY_DICT[self.w_id])
             self.string.set(ENTRY_STATUS_DIC[self.var.get()])
             self.change_combobox_status(self)
