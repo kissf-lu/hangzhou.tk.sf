@@ -285,9 +285,8 @@ class CheckBtnEntryList(object):
 
     @staticmethod
     def change_combobox_status(instance):
+        instance.string_combobox.set(BTN_ENTRY_DICT['man_' + instance.w_id])
         if instance.var.get() == 0:
-            instance.string_combobox.set(0)
             instance.init_list['state'] = DISABLED
         else:
             instance.init_list['state'] = NORMAL
-            instance.string_combobox.set(1)

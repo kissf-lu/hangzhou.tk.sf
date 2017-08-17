@@ -9,7 +9,7 @@ from tkinter.filedialog import askopenfilename
 
 from .db_api import Mysql, insert_package, update_on_off, save_to_past_run, \
     read_result, update_person
-# from simpy_lib import main
+from simpy_lib import main
 from .frame_a_view import Flag
 
 
@@ -19,10 +19,10 @@ def save_data(package_num, schedul_plan, root, txt_receipt):
             "Tkinter-数据更新错误", "运行错误，请输入仿真件量！"
         )
         return
-    if not schedul_plan.get():
-        messagebox.showerror("Tkinter-数据更新错误",
-                             "运行错误，请设置班次时间！")
-        return
+    # if not schedul_plan.get():
+    #     messagebox.showerror("Tkinter-数据更新错误",
+    #                          "运行错误，请设置班次时间！")
+    #     return
     if Flag['save_data'] > 0:
         messagebox.showerror("Tkinter-数据保存错误",
                              "数据已经保存，请勿重复操作！")
@@ -52,10 +52,10 @@ def run_sim(package_num, schedul_plan, root, txt_receipt):
             "Tkinter-数据更新错误", "运行错误， 请输入仿真件量！"
         )
         return
-    if not schedul_plan.get():
-        messagebox.showerror("Tkinter-数据更新错误",
-                             "运行错误，请设置班次时间！")
-        return
+    # if not schedul_plan.get():
+    #     messagebox.showerror("Tkinter-数据更新错误",
+    #                          "运行错误，请设置班次时间！")
+    #     return
     if Flag['update_data'] == 0:
         messagebox.showerror("Tkinter-仿真启动错误",
                              "运行错误，请先执行数据更新！")
@@ -118,10 +118,10 @@ def update_data(package_num, schedul_plan, root, txt_receipt):
         messagebox.showerror(
             "Tkinter-数据更新错误", "运行错误，请输入仿真件量！")
         return
-    if not schedul_plan.get():
-        messagebox.showerror("Tkinter-数据更新错误",
-                             "运行错误，请设置班次时间！")
-        return
+    # if not schedul_plan.get():
+    #     messagebox.showerror("Tkinter-数据更新错误",
+    #                          "运行错误，请设置班次时间！")
+    #     return
 
     # # #  显示结果
     txt_receipt['state'] = NORMAL
@@ -146,7 +146,7 @@ def update_data(package_num, schedul_plan, root, txt_receipt):
     # ========================更改人员数量==============
     txt_receipt.insert(END, '设置人力资源数量为%s......\n' % schedul_plan.get())
     with conn as cur:
-        update_person(cur, schedul_plan.get(), run_arg)
+        update_person(cur, run_arg)
     txt_receipt.insert(END, '人力资源设置完毕！\n')
     txt_receipt['state'] = DISABLED
 
