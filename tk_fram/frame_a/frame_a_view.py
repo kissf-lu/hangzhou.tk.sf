@@ -51,6 +51,13 @@ BTN_ENTRY_DICT = {}       # 初始化entry状态字典
 CHECK_BTN_ENTRY_DIC = {}   # 设置控件的id同实例的关联字典
 
 DATABASES_DIC = {
+    'ZHIQIAO': {
+        'HOST': '10.0.237.59',
+        'USER': 'lianghuaxiong',
+        'PASSWORD': 'lianghuaxiong',
+        'NAME': 'hangzhouhubair_v2',
+        'CHARSET': 'utf8'
+    },
     'TEST': {
         'HOST': '10.0.149.62',
         'USER': 'root',
