@@ -21,7 +21,8 @@ def init_btn_entry_val_from_sql():
     with conn as cur:
         cur.execute(
             "select equipment_port, equipment_status from i_equipment_io "
-            "where equipment_id like 'a%' or equipment_id like 'm%'"
+            "where equipment_id like 'a%' or equipment_id like 'm%' or "
+            "equipment_id like 'r%'"
         )
         result_on_off = cur.fetchall()
     for item in result_on_off:
@@ -29,7 +30,8 @@ def init_btn_entry_val_from_sql():
     with conn as cur:
         cur.execute(
             "select resource_id, resource_limit from i_resource_limit "
-            "where resource_id like 'man_a%' or resource_id like 'man_m%'"
+            "where resource_id like 'man_a%' or resource_id like 'man_m%' or "
+            "resource_id like 'man_r%'"
         )
         result_num = cur.fetchall()
         for item in result_num:
@@ -162,7 +164,7 @@ def read_result(cursor):
     cursor.execute(
         "select min(cast(real_time_stamp as datetime)), "
         "max(cast(real_time_stamp as datetime)) from o_machine_table where "
-        "action='wait' and equipment_id like 'a%'")
+        "action='wait' and (equipment_id like 'a%' or equipment_id like 'r%')")
 
     fast_time, later_time = cursor.fetchone()
     cursor.execute(
