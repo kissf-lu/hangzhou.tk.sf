@@ -37,6 +37,11 @@ class SecondarySort(object):
         self.env = env
         self.machine_id = machine_id
         self.pipelines_dict = pipelines_dict
+
+        # add machine switch
+        self.machine_switch = self.env.event()
+        self.machine_switch.succeed()
+
         self._set_machine()
 
     def _set_machine(self):
@@ -45,8 +50,24 @@ class SecondarySort(object):
         self.equipment_id = self.machine_id[1]  # pipeline id last value, for other machines
         self.input_pip_line = self.pipelines_dict[self.machine_id]
 
+    def set_machine_open(self):
+        """设置为开机"""
+        self.machine_switch.succeed()
+
+    def set_machine_close(self):
+        """设置为关机"""
+        self.machine_switch = self.env.event()
+
     def run(self):
         while True:
+            # 开关机的事件控制
+            t1 = self.env.now
+            yield self.machine_switch
+            t2 = self.env.now
+
+            if t2 != t1:
+                LOG.logger_font.debug(f"machine - equipment_id: {self.equipment_id} - close: {t1}, open: {t2} ")
+
             package = yield self.input_pip_line.get()
             try:
                 self.pipelines_dict[package.next_pipeline].put(package)

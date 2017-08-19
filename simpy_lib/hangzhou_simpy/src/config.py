@@ -23,7 +23,6 @@ class MainConfig:
     IS_LAND_ONLY = False  # True 只有 landside, False landside airside
     CACHE_TYPE = None  # {None, "redis", "pkl", "hdf5"}
     LOCAL_DB = False  # control which DB using
-    ALL_OPEN = False  # no more equipment limit
 
 
 class RedisConfig:
@@ -45,7 +44,7 @@ class RemoteMySQLConfig:
         HOST = "10.0.149.62"
         USER = "root"
         PASS = "root123"
-        DB = "hangzhouhubair"
+        DB = "hangzhouhubqa"
         CHARSET = 'utf8'
 
     engine = create_engine(

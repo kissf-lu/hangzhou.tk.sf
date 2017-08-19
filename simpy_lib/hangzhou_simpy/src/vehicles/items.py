@@ -17,9 +17,14 @@ import random
 
 from simpy_lib.hangzhou_simpy.src.utils import \
     (PackageRecord, PipelineRecord, TruckRecord, PathGenerator, TruckRecordDict, PackageRecordDict, PipelineRecordDict)
+
+from simpy_lib.hangzhou_simpy.src.utils import \
+    (PathRecordDict, PathRecord)
+
 from simpy_lib.hangzhou_simpy.src.config import LOG
 
-__all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline"]
+__all__ = ["Parcel", "Package", "Truck", "Uld", "SmallBag", "SmallPackage", "Pipeline", "PipelineRes", "BasePipeline",
+           "PipelineReplace",]
 
 
 path_g = PathGenerator()
@@ -33,11 +38,12 @@ class Package:
         # 包裹的所有信息都在 attr
         self.attr = attr
         # id
-        self.parcel_id = self.attr["parcel_id"]
-        self.small_id = self.attr.get("small_id", self.parcel_id)
+        self._parcel_id = self.attr["parcel_id"]
+        self.small_id = self.attr.get("small_id", self._parcel_id)
         # data store
         self.machine_data = list()
         self.pipeline_data = list()
+        self.path_request_data = list()
         # path_generator
         self.path_g = path_g
         # paths
@@ -52,12 +58,28 @@ class Package:
         self.parcel_type = self.attr["parcel_type"]
         self.sorter_type = "small_sort" if self.parcel_type == "small" else "reload"
 
+    @property
+    def parcel_id(self):
+        return self._parcel_id
+
+    @parcel_id.setter
+    def parcel_id(self, value: str):
+        self._parcel_id = value
+
     # use in unload machine
     def set_path(self, package_start):
-        path = self.path_g.path_generator(package_start, self.ident_des_zno, self.sorter_type, self.dest_type)
-        self.planned_path = tuple(path)
+        ret_path = self.path_g.path_generator(package_start, self.ident_des_zno, self.sorter_type, self.dest_type)
+        self.planned_path = tuple(ret_path)
         self.path = list(self.planned_path)
         self.next_pipeline = self.planned_path[:2]
+
+        # collection path data
+        data = PathRecordDict(
+            start_node=package_start,
+            ret_path=':'.join(ret_path),
+        )
+        # add data
+        self.insert_data(data)
 
     def insert_data(self, data: dict):
 
@@ -83,6 +105,23 @@ class Package:
             LOG.logger_font.debug(msg=f"Package: {record.small_id} , action: {record.action}"
                                       f", pipeline: {record.pipeline_id}, timestamp: {record.time_stamp}")
 
+        elif isinstance(data, PathRecordDict):
+            record = PathRecord(
+                parcel_id=self.parcel_id,
+                small_id=self.small_id,
+                parcel_type=self.parcel_type,
+                ident_des_zno=self.ident_des_zno,
+                sorter_type=self.sorter_type,
+                dest_type=self.dest_type,
+                **data,
+            )
+
+            self.path_request_data.append(record)
+            LOG.logger_font.debug(msg=f"Package get path - parcel_id: {record.parcel_id}, small_id: {record.small_id}, "
+                                      f", path: {record.ret_path}"
+                                      f", parcel_type: {record.parcel_type}, ident_des_zno: {record.ident_des_zno}"
+                                      f", sorter_type: {record.sorter_type}, dest_type: {record.dest_type}")
+
         else:
             raise ValueError("Wrong type of record")
 
@@ -96,8 +135,6 @@ class Package:
             self.next_pipeline = self.path[-1]
         else:
             raise ValueError('The path have been empty!')
-        # remove the now_loc
-        # 改变下一个 pipeline id
 
     def __str__(self):
         display_dct = dict(self.attr)
@@ -141,6 +178,17 @@ class SmallBag(Package):
         self.store = small_packages
         self.store_size = len(self.store)
 
+    @property
+    def parcel_id(self):
+        return self._parcel_id
+
+    @parcel_id.setter
+    def parcel_id(self, value: str):
+        self._parcel_id = value
+        # parcel id 更新到小件包里的小件包裹
+        for x in self.store:
+            x.parcel_id = value
+
     def get_all_package(self):
         return [self.store.pop(0) for _ in range(self.store_size)]
 
@@ -157,13 +205,13 @@ class SmallBag(Package):
 
 class Truck:
     """货车"""
-    def __init__(self, item_id: str, come_time: int, truck_type: str, packages: list):
+    def __init__(self, truck_id: str, come_time: int, truck_type: str, packages: list):
         """
         :param truck_id: self explain
         :param come_time: self explain
         :param packages: a data frame contain all packages
         """
-        self.item_id = item_id
+        self.truck_id = truck_id
         self.come_time = come_time
         self.store = packages
         self.truck_type = truck_type
@@ -176,7 +224,7 @@ class Truck:
     def insert_data(self, data:dict):
         assert isinstance(data, TruckRecordDict), "Wrong data type"
         record = TruckRecord(
-                    truck_id=self.item_id,
+                    truck_id=self.truck_id,
                     truck_type=self.truck_type,
                     store_size=self.store_size,
                     **data,)
@@ -184,7 +232,7 @@ class Truck:
         self.truck_data.append(record)
 
     def __str__(self):
-        return f"<Truck truck_id: {self.item_id}, come_time: {self.come_time}, store_size:{self.store_size}>"
+        return f"<Truck truck_id: {self.truck_id}, come_time: {self.come_time}, store_size:{self.store_size}>"
 
 
 class Uld(Truck):
@@ -287,6 +335,79 @@ class Pipeline:
         return f"<Pipeline: {self.pipeline_id}, delay: {self.delay}>"
 
 
+class PipelineReplace:
+
+    """共享队列的传送带"""
+
+    def __init__(self,
+                 env: simpy.Environment,
+                 delay_time: float,
+                 pipeline_id: tuple,
+                 queue_id: str,
+                 machine_type: str,
+                 share_store_dict: dict,
+                 equipment_store_dict: dict,
+                 ):
+
+        self.env = env
+        self.delay = delay_time
+        self.share_store_dict = share_store_dict
+        self.equipment_store_dict = equipment_store_dict
+        self.pipeline_id = pipeline_id
+        self.queue_id = queue_id
+        self.machine_type = machine_type
+        self.equipment_id = self.pipeline_id[1]  # in Pipeline the equipment_id is equipment after this pipeline
+        # setting share store
+        self._set_store()
+
+    def _set_store(self):
+        self.share_store_id = self.equipment_store_dict[self.equipment_id]
+        self.queue = self.share_store_dict[self.share_store_id]
+
+    def latency(self):
+        """模拟传送时间"""
+        item = yield self.queue.get()
+
+        # pipeline start server
+        item.insert_data(
+            PipelineRecordDict(
+                pipeline_id=':'.join(self.pipeline_id),
+                queue_id=self.queue_id,
+                time_stamp=self.env.now,
+                action="start", ))
+
+        yield self.env.timeout(self.delay)
+
+        # cutting path
+        item.pop_mark()
+
+        # package wait for next process
+        item.insert_data(
+            PackageRecordDict(
+                equipment_id=self.equipment_id,
+                time_stamp=self.env.now,
+                action="wait", ))
+
+        # pipeline end server
+        item.insert_data(
+            PipelineRecordDict(
+                pipeline_id=':'.join(self.pipeline_id),
+                queue_id=self.queue_id,
+                time_stamp=self.env.now,
+                action="end", ))
+
+        return item
+
+    def put(self, item: Package):
+        self.queue.put(item)
+
+    def get(self):
+        return self.env.process(self.latency())
+
+    def __str__(self):
+        return f"<PipelineReplace: {self.pipeline_id}, delay: {self.delay}>"
+
+
 class PipelineRes(Pipeline):
 
     def __init__(self,
@@ -365,6 +486,9 @@ class PipelineRes(Pipeline):
             # cutting path, change item next_pipeline
             item.pop_mark()
             self.queue.put(item)
+
+    def __str__(self):
+        return f"<PipelineRes: {self.pipeline_id}, delay: {self.delay}>"
 
 
 if __name__ == '__main__':

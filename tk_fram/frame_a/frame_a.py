@@ -269,17 +269,17 @@ def init_a_frame(root: Tk):
     lbl_btn.grid(row=0, column=0)
     lbl_btn = Label(
         master=left_set_pad_down_title,
-        font=('Times', 8), text='    卸货口    ', justify='left'
+        font=('Times', 8), text='    初分拣口', justify='left'
     )
     lbl_btn.grid(row=0, column=1)
     lbl_entry = Label(
         master=left_set_pad_down_title,
-        font=('Times', 8), text='    状态     ', justify='left'
+        font=('Times', 8), text='      状态   ', justify='left'
     )
     lbl_entry.grid(row=0, column=2)
     lbl_list = Label(
         master=left_set_pad_down_title,
-        font=('Times', 8), text='  人力数   ', justify='left'
+        font=('Times', 8), text='    人力数', justify='left'
     )
     lbl_list.grid(row=0, column=3)
     lbl_btn = Label(
@@ -289,17 +289,17 @@ def init_a_frame(root: Tk):
     lbl_btn.grid(row=0, column=4)
     lbl_btn = Label(
         master=left_set_pad_down_title,
-        font=('Times', 8), text='   卸货口   ', justify='left'
+        font=('Times', 8), text='   初分拣口', justify='left'
     )
     lbl_btn.grid(row=0, column=5)
     lbl_entry = Label(
         master=left_set_pad_down_title,
-        font=('Times', 8), text='     状态     ', justify='left'
+        font=('Times', 8), text='       状态   ', justify='left'
     )
     lbl_entry.grid(row=0, column=6)
     lbl_list = Label(
         master=left_set_pad_down_title,
-        font=('Times', 8), text='  人力数  ', justify='left'
+        font=('Times', 8), text='  人力数', justify='left'
     )
     lbl_list.grid(row=0, column=7)
     lbl_btn = Label(
@@ -309,7 +309,7 @@ def init_a_frame(root: Tk):
     lbl_btn.grid(row=0, column=8)
     lbl_btn = Label(
         master=left_set_pad_down_title,
-        font=('Times', 8), text='  卸货口  ', justify='left'
+        font=('Times', 8), text='  初分拣口', justify='left'
     )
     lbl_btn.grid(row=0, column=9)
     lbl_entry = Label(
@@ -320,7 +320,7 @@ def init_a_frame(root: Tk):
     # 路侧卸货标题-resource
     lbl_list = Label(
         master=left_set_pad_down_title,
-        font=('Times', 8), text='  人力数  ', justify='left'
+        font=('Times', 8), text='  人力数', justify='left'
     )
     lbl_list.grid(row=0, column=11)
     lbl_btn = Label(

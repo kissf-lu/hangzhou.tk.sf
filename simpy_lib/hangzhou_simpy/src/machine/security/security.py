@@ -40,6 +40,11 @@ class Security:
         self.resource_dict = resource_dict
         # 机器资源id与机器id映射字典
         self.equipment_resource_dict = equipment_resource_dict
+
+        # add machine switch
+        self.machine_switch = self.env.event()
+        self.machine_switch.succeed()
+
         # 初始化初分拣字典
         self.resource_set = self._set_machine_resource()
 
@@ -56,6 +61,14 @@ class Security:
             raise RuntimeError('cross machine',
                                self.machine_id,
                                'not initial equipment_resource_dict!')
+
+    def set_machine_open(self):
+        """设置为开机"""
+        self.machine_switch.succeed()
+
+    def set_machine_close(self):
+        """设置为关机"""
+        self.machine_switch = self.env.event()
 
     def processing(self, package: Package):
         # 请求资源（工人)
@@ -78,6 +91,8 @@ class Security:
                     action="end", ))
             # 放入下一步的传送带
             try:
+                # 重新规划安检路径
+                package.set_path(package_start=self.equipment_id)
                 self.pipelines_dict[package.next_pipeline].put(package)
             except Exception as exc:
                 self.pipelines_dict['error'].put(package)
@@ -87,6 +102,13 @@ class Security:
 
     def run(self):
         while True:
+            # 开关机的事件控制
+            t1 = self.env.now
+            yield self.machine_switch
+            t2 = self.env.now
+
+            if t2 != t1:
+                LOG.logger_font.debug(f"machine - equipment_id: {self.equipment_id} - close: {t1}, open: {t2} ")
             package = yield self.input_pip_line.get()
             # 有包裹就推送到资源模块
             self.env.process(self.processing(package))

@@ -80,6 +80,19 @@ def insert_package(cursor, num: str, run_arg):
         "limit %s" % int(int(num) / 2 * 0.07)
     )
     cursor.execute(
+        "insert into i_od_parcel_landside "
+        "(parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code,"
+        " dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
+        "send_time, inserted_on, modified_on) "
+        "select "
+        "parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code, "
+        "dest_type, plate_num, parcel_type, limit_type_code, arrive_time, "
+        "send_time, inserted_on, modified_on "
+        "from i_od_parcel_landside_day "
+        "where parcel_type='small' "
+        "limit %s" % int(int(num) / 2 * 0.05)
+    )
+    cursor.execute(
         "INSERT into i_od_small_landside "
         "(small_id, parcel_id, src_dist_code, src_type, dest_dist_code, "
         "dest_zone_code, dest_type, "

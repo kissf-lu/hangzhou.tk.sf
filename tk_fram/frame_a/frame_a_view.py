@@ -55,14 +55,14 @@ DATABASES_DIC = {
         'HOST': '10.0.237.59',
         'USER': 'lianghuaxiong',
         'PASSWORD': 'lianghuaxiong',
-        'NAME': 'hangzhouhubair_v2',
+        'NAME': 'hangzhouhubqa',
         'CHARSET': 'utf8'
     },
     'TEST': {
         'HOST': '10.0.149.62',
         'USER': 'root',
         'PASSWORD': 'root123',
-        'NAME': 'hangzhouhubair',
+        'NAME': 'hangzhouhubqa',
         'CHARSET': 'utf8'
     },
     'PRODUCTION': {
