@@ -53,6 +53,20 @@ def insert_package(cursor, num: str, run_arg):
     # ============================ 插入陆侧数据 ===============================
     cursor.execute("truncate i_od_parcel_landside")
     cursor.execute("truncate i_od_small_landside")
+    cursor.execute('select count(1) from i_od_parcel_landside_day')
+    land = int(cursor.fetchone()[0])
+    cursor.execute('select count(1) from i_od_parcel_airside_day')
+    air = int(cursor.fetchone([0]))
+
+    land_num = int(num) * land / (land + air)
+    land_parcel_num = int(land_num * 0.88)
+    land_nc_num = int(land_num * 0.07)
+    land_small_num = land_num - land_parcel_num - land_nc_num
+
+    air_num = int(num) - land_num
+    air_parcel_num = int(air_num * 0.88)
+    air_nc_num = int(air_num * 0.07)
+    air_small_num = air_num - air_parcel_num - air_nc_num
     cursor.execute(
         "insert into i_od_parcel_landside "
         "(parcel_id, src_dist_code, src_type, dest_dist_code, dest_zone_code,"
@@ -64,7 +78,7 @@ def insert_package(cursor, num: str, run_arg):
         "send_time, inserted_on, modified_on "
         "from i_od_parcel_landside_day "
         "where parcel_type='parcel' "
-        "limit %s" % int(int(num) / 2 * 0.88)
+        "limit %s" % land_parcel_num
     )
     cursor.execute(
         "insert into i_od_parcel_landside "
@@ -77,7 +91,7 @@ def insert_package(cursor, num: str, run_arg):
         "send_time, inserted_on, modified_on "
         "from i_od_parcel_landside_day "
         "where parcel_type='nc' "
-        "limit %s" % int(int(num) / 2 * 0.07)
+        "limit %s" % land_nc_num
     )
     cursor.execute(
         "insert into i_od_parcel_landside "
@@ -90,7 +104,7 @@ def insert_package(cursor, num: str, run_arg):
         "send_time, inserted_on, modified_on "
         "from i_od_parcel_landside_day "
         "where parcel_type='small' "
-        "limit %s" % int(int(num) / 2 * 0.05)
+        "limit %s" % land_small_num
     )
     cursor.execute(
         "INSERT into i_od_small_landside "
@@ -110,7 +124,7 @@ def insert_package(cursor, num: str, run_arg):
         "( SELECT f.parcel_id "
         "FROM i_od_parcel_landside_day AS f "
         "WHERE f.`parcel_type`='small' "
-        "LIMIT %s) AS t)" % int(int(num) / 2 * 0.05)
+        "LIMIT %s) AS t)" % land_small_num
     )
     # ============================ 插入空侧数据 ===============================
     cursor.execute("truncate i_od_parcel_airside")
@@ -126,7 +140,7 @@ def insert_package(cursor, num: str, run_arg):
         "send_time, inserted_on, modified_on "
         "from i_od_parcel_airside_day "
         "where parcel_type='parcel' "
-        "limit %s" % int(int(num) / 2 * 0.88)
+        "limit %s" % air_parcel_num
     )
     cursor.execute(
         "insert into i_od_parcel_airside "
@@ -139,7 +153,7 @@ def insert_package(cursor, num: str, run_arg):
         "send_time, inserted_on, modified_on "
         "from i_od_parcel_airside_day "
         "where parcel_type='nc' "
-        "limit %s" % int(int(num) / 2 * 0.07)
+        "limit %s" % air_nc_num
     )
     cursor.execute(
         "insert into i_od_parcel_airside "
@@ -152,7 +166,7 @@ def insert_package(cursor, num: str, run_arg):
         "send_time, inserted_on, modified_on "
         "from i_od_parcel_airside_day "
         "where parcel_type='small' "
-        "limit %s" % int(int(num) / 2 * 0.05)
+        "limit %s" % air_small_num
     )
     cursor.execute(
         "INSERT into i_od_small_airside "
@@ -169,7 +183,7 @@ def insert_package(cursor, num: str, run_arg):
         "WHERE s.`parcel_id` IN (SELECT DISTINCT t.parcel_id "
         "FROM(SELECT f.parcel_id FROM i_od_parcel_airside_day AS f "
         "WHERE f.`parcel_type`='small' "
-        "LIMIT %s) AS t)" % int(int(num) / 2 * 0.05)
+        "LIMIT %s) AS t)" % air_small_num
     )
     cursor.execute("update i_od_parcel_landside set inserted_on='%s'" % run_arg)
     cursor.execute("update i_od_parcel_airside set inserted_on='%s'" % run_arg)
