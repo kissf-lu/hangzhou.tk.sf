@@ -134,3 +134,5 @@ notebooks/*
 
 # 忽略bat文件
 # *.bat
+# 忽略simpy_lib
+simpy_lib/*
